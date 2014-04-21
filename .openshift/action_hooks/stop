@@ -1,0 +1,10 @@
+#!/bin/bash
+# The logic to stop your application should be put in this script.
+
+
+set -x
+
+if [ -d $OPENSHIFT_DATA_DIR/tomcat ]
+then
+	$OPENSHIFT_DATA_DIR/tomcat/bin/shutdown.sh
+fi

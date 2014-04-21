@@ -1,0 +1,86 @@
+#!/bin/bash
+# This deploy hook gets executed after dependencies are resolved and the
+# build hook has been run but before the application has been started back
+# up again.  This script gets executed directly, so it could be python, php,
+# ruby, etc.
+
+
+
+set -x
+
+# version of tomcat you want to use
+TOMCAT_VER="7.0.53"
+
+# version of nexus you want to use
+NEXUS_VER="2.8.0"
+
+
+
+
+if [ ! -d $OPENSHIFT_DATA_DIR/java.prefs ]
+then
+	mkdir $OPENSHIFT_DATA_DIR/java.prefs
+fi
+
+if [ ! -d $OPENSHIFT_DATA_DIR/sonatype-work/nexus ]
+then
+	mkdir -p $OPENSHIFT_DATA_DIR/sonatype-work/nexus
+fi
+
+if [ ! -d $OPENSHIFT_DATA_DIR/tomcat ]
+then
+	mkdir $OPENSHIFT_DATA_DIR/deployment-tmp
+	cd $OPENSHIFT_DATA_DIR/deployment-tmp
+	
+	
+	
+	major_ver=`echo $TOMCAT_VER | cut -c1`
+	# example url to match: http://www.us.apache.org/dist/tomcat/tomcat-8/v8.0.5/bin/apache-tomcat-8.0.5.tar.gz
+	tomcat_url="http://www.us.apache.org/dist/tomcat/tomcat-$major_ver/v$TOMCAT_VER/bin/apache-tomcat-$TOMCAT_VER.tar.gz"	
+	
+	# download tomcat, and set it up
+	wget $tomcat_url		
+	tar -zxvf apache-tomcat-$TOMCAT_VER.tar.gz
+	cp -rf apache-tomcat-$TOMCAT_VER/ $OPENSHIFT_DATA_DIR/tomcat
+
+	# remove all preinstalled applications
+	rm -rf $OPENSHIFT_DATA_DIR/tomcat/webapps/*
+
+	# copy server.xml.template from repo to tomcat's conf dierectory;
+	# server.xml.template contains dummy variables which are going to be replaced
+	# in start action hook with real values from openshift enviroment;
+	# server.xml.template with real values will replace tomcat's previous server.xml
+	cp $OPENSHIFT_DATA_DIR/tomcat/conf/server.xml \
+			$OPENSHIFT_DATA_DIR/tomcat/conf/server.xml.original
+	cp $OPENSHIFT_REPO_DIR/diy/tomcat/conf/server.xml.template \
+			$OPENSHIFT_DATA_DIR/tomcat/conf/server.xml.template
+	
+	# download nexus war and extract it into tomcat's deployment directory 
+	# as default application;
+	# example url to match: http://www.sonatype.org/downloads/nexus-2.8.0.war
+	nexus_war_url="http://www.sonatype.org/downloads/nexus-$NEXUS_VER.war"
+	wget $nexus_war_url
+	mkdir $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/
+	cd $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/
+	jar xvf $OPENSHIFT_DATA_DIR/deployment-tmp/nexus-$NEXUS_VER.war
+
+	# configure tomcat and nexus to use only https connection;
+	# if you want to use also http, comment out next 10 lines;
+	# for this change to take effect you have to reinstall tomcat 
+	# by deleting $OPENSHIFT_DATA_DIR/tomcat/ directory.
+	cp $OPENSHIFT_DATA_DIR/tomcat/conf/context.xml \
+			$OPENSHIFT_DATA_DIR/tomcat/conf/context.xml.original
+	delta_file="$OPENSHIFT_REPO_DIR/diy/tomcat/conf/context.xml.add-remoteIpValve"
+	echo -e "/<\/Context>/-1r $delta_file\n%w" \
+			| ed -s $OPENSHIFT_DATA_DIR/tomcat/conf/context.xml
+	cp $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/WEB-INF/web.xml \
+			$OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/WEB-INF/web.xml.original
+	delta_file="$OPENSHIFT_REPO_DIR/diy/nexus/WEB-INF/web.xml.add-https-security-constraint"
+	echo -e "/<\/web-app>/-1r $delta_file\n%w" \
+			| ed -s $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/WEB-INF/web.xml
+
+
+	cd ~/
+	rm -rf $OPENSHIFT_DATA_DIR/deployment-tmp
+fi
+

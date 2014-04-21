@@ -1,0 +1,16 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_DIY_IP:8080
+
+
+set -x
+
+export CATALINA_OPTS="$JAVA_OPTS -Djava.util.prefs.userRoot=$OPENSHIFT_DATA_DIR/java.prefs"
+export NEXUS_WORK=$OPENSHIFT_DATA_DIR/sonatype-work/nexus
+
+cd $OPENSHIFT_DATA_DIR/tomcat/
+pattern='s/OPENSHIFT_DIY_IP/'$OPENSHIFT_DIY_IP'/g;s/OPENSHIFT_APP_DNS/'$OPENSHIFT_APP_DNS'/g'
+sed $pattern conf/server.xml.template > conf/server.xml
+
+bin/startup.sh
