@@ -19,7 +19,7 @@ Installation instructions
 		rhc app create -a nexus -t diy-0.1
 	
 	Another way is to create it manually from your OpenShift web console:  
-	Click on 'Add Application', scroll all the way down and select 'Do-It-Yourself 0.1', 
+	Click on 'Add Application...', scroll all the way down and select 'Do-It-Yourself 0.1', 
 	insert name of your application (most likely `nexus`) into 'Public URL' field 
 	and click on 'Create Application'.
 	
