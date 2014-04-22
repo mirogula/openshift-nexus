@@ -20,7 +20,8 @@ Installation instructions
 	
 	Another way is to create it manually from your OpenShift web console:  
 	Click on 'Add Application', scroll all the way down and select 'Do-It-Yourself 0.1', 
-	insert name of your application into 'Public URL' field and click on 'Create Application'.
+	insert name of your application (most likely `nexus`) into 'Public URL' field 
+	and click on 'Create Application'.
 	
 2. Clone git repository of your newly created application, and then merge it with 
 	this repository:
@@ -47,7 +48,7 @@ installation of new versions by deleting `$OPENSHIFT_DATA_DIR/tomcat/` directory
 in your OpenShift gear:
 
 ```
-ssh <username>@<app-name>-<domain>.rhcloud.com
+ssh <username>@<nexus>-<your-subdomain>.rhcloud.com
 rm -rf $OPENSHIFT_DATA_DIR/tomcat/
 ```
 
