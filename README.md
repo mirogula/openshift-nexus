@@ -10,8 +10,8 @@ on Apache Tomcat in your OpenShift's diy gear.
 It downloads Tomcat and Nexus war and installs them in your OpenShift gear.
 
 
-Instructions
-------------
+Installation instructions
+-------------------------
 1. You need to create diy application in your OpenShift account.
 
 	It can be done by `rhc` client tool:
@@ -37,10 +37,12 @@ Instructions
 
 Configuration
 -------------
-Optionally you can change versions of Tomcat or Nexus in `.openshift/action_hooks/deploy` 
+
+### Tomcat and Nexus versions
+You can change versions of Tomcat or Nexus in `.openshift/action_hooks/deploy` 
 file by editing `$TOMCAT_VER` or `$NEXUS_VER` variables. 
 
-If you already had Tomcat and Nexus installed by this application, you can force 
+If you had already Tomcat and Nexus installed by this application, you can force 
 installation of new versions by deleting `$OPENSHIFT_DATA_DIR/tomcat/` directory 
 in your OpenShift gear:
 
@@ -48,6 +50,29 @@ in your OpenShift gear:
 ssh <username>@<app-name>-<domain>.rhcloud.com
 rm -rf $OPENSHIFT_DATA_DIR/tomcat/
 ```
+
+### Activate http protocol
+By default this application configures Tomcat and Nexus to use only https protocol.
+To activate http protocol comment out this lines in `.openshift/action_hooks/deploy` 
+file:
+
+```
+cp $OPENSHIFT_DATA_DIR/tomcat/conf/context.xml \
+		$OPENSHIFT_DATA_DIR/tomcat/conf/context.xml.original
+delta_file="$OPENSHIFT_REPO_DIR/diy/tomcat/conf/context.xml.add-remoteIpValve"
+echo -e "/<\/Context>/-1r $delta_file\n%w" \
+		| ed -s $OPENSHIFT_DATA_DIR/tomcat/conf/context.xml
+cp $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/WEB-INF/web.xml \
+		$OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/WEB-INF/web.xml.original
+delta_file="$OPENSHIFT_REPO_DIR/diy/nexus/WEB-INF/web.xml.add-https-security-constraint"
+echo -e "/<\/web-app>/-1r $delta_file\n%w" \
+		| ed -s $OPENSHIFT_DATA_DIR/tomcat/webapps/ROOT/WEB-INF/web.xml
+```
+
+As previously if you had already Tomcat and Nexus installed by this application, 
+you must delete `$OPENSHIFT_DATA_DIR/tomcat/` directory in your OpenShift gear 
+to force reinstallation. Otherwise changes you had just made won't be effective.
+
 
 References
 ----------
