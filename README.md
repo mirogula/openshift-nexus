@@ -2,7 +2,7 @@
 
 <!--https://github.com/openshift/origin-server/tree/master/cartridges/openshift-origin-cartridge-diy/README.md-->
 
-Nexus as diy application on OpenShift
+Nexus as DIY application on OpenShift
 =====================================
 
 This simple application will enable you to run Nexus maven repository manager 
