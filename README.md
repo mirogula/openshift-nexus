@@ -77,7 +77,7 @@ to force reinstallation. Otherwise changes you had just made won't be effective.
 
 References
 ----------
- * [nexus on OpenShift](https://www.openshift.com/blogs/nexus-repository-manager-in-the-cloud-for-free-with-openshift)
+ * [Nexus on OpenShift](https://www.openshift.com/blogs/nexus-repository-manager-in-the-cloud-for-free-with-openshift)
  * [original work from which this app is derived](https://github.com/shekhargulati/nexus)
  * [run Tomcat 8 on OpenShift](https://www.openshift.com/blogs/how-to-run-apache-tomcat-8-on-openshift)
  * [tutorial for diy application on OpenShift](https://www.openshift.com/developers/do-it-yourself)
