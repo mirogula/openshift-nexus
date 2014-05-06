@@ -6,7 +6,9 @@
 
 set -x
 
-export CATALINA_OPTS="$JAVA_OPTS -Djava.util.prefs.userRoot=$OPENSHIFT_DATA_DIR/java.prefs"
+JAVA_PREFS_DIR_CONFIG="-Djava.util.prefs.userRoot=$OPENSHIFT_DATA_DIR/java.prefs"
+JAVA_XMX_CONFIG="-Xmx384M"
+export CATALINA_OPTS="$JAVA_OPTS $JAVA_PREFS_DIR_CONFIG $JAVA_XMX_CONFIG"
 export NEXUS_WORK=$OPENSHIFT_DATA_DIR/sonatype-work/nexus
 
 cd $OPENSHIFT_DATA_DIR/tomcat/

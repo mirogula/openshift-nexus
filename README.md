@@ -74,6 +74,12 @@ As previously if you had already Tomcat and Nexus installed by this application,
 you must delete `$OPENSHIFT_DATA_DIR/tomcat/` directory in your OpenShift gear 
 to force reinstallation. Otherwise changes you had just made won't be effective.
 
+### Maximum java heap size (-Xmx)
+Because small gears have only 512 MB ram, you can set maximum java heap size for 
+Nexus to avoid problems with memory allocation and swapping. By default this option 
+is set to 384 MB. You change it in `.openshift/action_hooks/start` by editing this 
+line: `JAVA_XMX_CONFIG="-Xmx384M"`.
+
 
 References
 ----------
